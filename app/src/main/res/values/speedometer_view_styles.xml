@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="speedometerDefaultsStyles">
+        <item name="speed">50</item>
+        <item name="maxSpeed">100</item>
+        <item name="colorLowSpeed">@color/green</item>
+        <item name="colorMediumSpeed">@color/yellow</item>
+        <item name="colorFastSpeed">@color/red</item>
+        <item name="colorArrow">@color/cyan</item>
+    </style>
+</resources>
