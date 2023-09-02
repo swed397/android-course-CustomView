@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <com.android.course.android_course_customview.Speedometer
+        android:id="@+id/speedometer"
         android:layout_width="400dp"
         android:layout_height="200dp"
         app:colorFastSpeed="@color/red"
@@ -19,5 +20,24 @@
         app:layout_constraintVertical_bias="0.5"
         app:maxSpeed="120"
         app:speed="35" />
+
+    <Button
+        android:id="@+id/button_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Up"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_down"
+        app:layout_constraintTop_toBottomOf="@+id/speedometer" />
+
+    <Button
+        android:id="@+id/button_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Down"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speedometer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
