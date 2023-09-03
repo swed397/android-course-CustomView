@@ -9,8 +9,8 @@
 
     <com.android.course.android_course_customview.Speedometer
         android:id="@+id/speedometer"
-        android:layout_width="400dp"
-        android:layout_height="200dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:colorFastSpeed="@color/red"
         app:colorLowSpeed="@color/green"
         app:colorMediumSpeed="@color/yellow"
@@ -18,7 +18,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
-        app:maxSpeed="120"
+        app:maxSpeed="80"
         app:speed="35" />
 
     <Button
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:text="Up"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_down"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/speedometer" />
 
     <Button
@@ -37,7 +37,17 @@
         android:text="Down"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speedometer" />
+
+    <TextView
+        android:id="@+id/speed_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/purple"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_down"
+        app:layout_constraintStart_toEndOf="@+id/button_up"
         app:layout_constraintTop_toBottomOf="@+id/speedometer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

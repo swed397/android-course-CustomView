@@ -1,16 +1,15 @@
 package com.android.course.android_course_customview
 
-import android.R.attr.radius
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 
@@ -57,15 +56,12 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
         textSize = 1f
         color = ContextCompat.getColor(context, R.color.orange)
         style = Paint.Style.FILL
-        textAlign = Paint.Align.LEFT
     }
 
     private val speedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = ContextCompat.getColor(context, R.color.purple)
     }
-
-    private val speedToDraw = ArrayDeque<Pair<String, Pair<Float, Float>>>()
 
     init {
         val typedArray = context.theme.obtainStyledAttributes(
@@ -77,7 +73,6 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
 
         try {
             speed = typedArray.getInt(R.styleable.Speedometer_speed, 50)
-            println(speed)
             maxSpeed = typedArray.getInt(R.styleable.Speedometer_maxSpeed, 100)
             colorLowSpeed = typedArray.getColor(R.styleable.Speedometer_colorLowSpeed, Color.BLACK)
             colorMediumSpeed =
@@ -85,27 +80,59 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
             colorFastSpeed =
                 typedArray.getColor(R.styleable.Speedometer_colorFastSpeed, Color.BLACK)
             colorArrow = typedArray.getColor(R.styleable.Speedometer_colorArrow, Color.BLACK)
+
+            if (speed > maxSpeed || speed < 0) {
+                throw IllegalStateException("Неверное значение скорости")
+            }
         } finally {
             typedArray.recycle()
         }
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        var width = MeasureSpec.getSize(widthMeasureSpec)
+
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        var height = MeasureSpec.getSize(heightMeasureSpec)
+
+        val aspect = width / height.toFloat()
+        val normalAspect = 2f / 1f
+        if (aspect > normalAspect) {
+            if (widthMode != MeasureSpec.EXACTLY) {
+                width = (normalAspect * height).roundToInt()
+            }
+        }
+        if (aspect < normalAspect) {
+            if (heightMode != MeasureSpec.EXACTLY) {
+                height = (width / normalAspect).roundToInt()
+            }
+        }
+        setMeasuredDimension(width, height)
+    }
+
     override fun onDraw(canvas: Canvas?) {
         drawBackground(canvas)
-        drawSpeed(canvas)
+//        drawSpeed(canvas)
         drawScale(canvas)
         drawArrow(canvas)
     }
 
     fun speedUp() {
-        speed += 1
-        invalidate()
+        if (speed < maxSpeed) {
+            speed += 1
+            invalidate()
+        }
     }
 
     fun speedDown() {
-        speed -= 1
-        invalidate()
+        if (speed > 0) {
+            speed -= 1
+            invalidate()
+        }
     }
+
+    fun getSpeed() = speed
 
     private fun drawBackground(canvas: Canvas?) {
         canvas?.apply {
@@ -117,14 +144,12 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
                     style = Paint.Style.FILL
                     color = ContextCompat.getColor(context, R.color.lightGrey)
                 })
-            save()
         }
     }
 
     private fun drawScale(canvas: Canvas?) {
         val scaleStep = Math.PI / maxSpeed
         val scaleLength = 0.9f
-        val halfCircumference = radius * Math.PI
 
 
         for (i in 0..maxSpeed) {
@@ -134,18 +159,8 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
                 val x2 = x1 * scaleLength * 0.9f
                 val y2 = y1 * scaleLength * 0.9f
                 canvas?.drawLine(x1, y1, x2, y2, bigScalePaint)
-                speedToDraw.addFirst(Pair("$i", Pair(x2, y2)))
-//                drawText(canvas)
             } else {
-
-                if (i < maxSpeed / 100 * 40)
-                    scalePaint.color = ContextCompat.getColor(context, R.color.green)
-                else if (i < maxSpeed / 100 * 80) {
-                    scalePaint.color = ContextCompat.getColor(context, R.color.yellow)
-                } else {
-                    scalePaint.color = ContextCompat.getColor(context, R.color.red)
-                }
-
+                scalePaint.chooseColorScale(i)
                 val x2 = x1 * scaleLength
                 val y2 = y1 * scaleLength
                 canvas?.drawLine(x1, y1, x2, y2, scalePaint)
@@ -164,6 +179,18 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
         }
     }
 
+    private fun Paint.chooseColorScale(i: Int) {
+        color = if (i <= maxSpeed.toFloat() / 100 * LOW_SPEED_PERCENT) {
+            ContextCompat.getColor(context, R.color.green)
+        } else if (i >= maxSpeed.toFloat() / 100 * LOW_SPEED_PERCENT &&
+            i <= maxSpeed.toFloat() / 100 * MEDIUM_SPEED_PERCENT
+        ) {
+            ContextCompat.getColor(context, R.color.yellow)
+        } else {
+            ContextCompat.getColor(context, R.color.red)
+        }
+    }
+
 //    private fun drawText(canvas: Canvas?) {
 //        canvas?.apply {
 ////            rotate(90f)
@@ -174,15 +201,22 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
 //        }
 //    }
 
-    private fun drawSpeed(canvas: Canvas?) {
-        canvas?.apply {
-            save()
-            translate(width.toFloat() / 2, 0f)
-            rotate(180f)
-            drawRect(-0.3f, -0.3f, 0.3f, 0f, speedPaint)
-            drawText("11", 0.01f, -0.01f, textPaint)
-            rotate(180f)
-            restore()
-        }
+//    private fun drawSpeed(canvas: Canvas?) {
+//        canvas?.apply {
+//            save()
+////            translate(width.toFloat(), height.toFloat())
+//            scale(width.toFloat(), height.toFloat())
+////            rotate(180f)
+////            drawRect(-0.3f, -0.3f, 0.3f, 0f, speedPaint)
+//            drawText("11", 200f, 100f, textPaint)
+//            drawText("11", 0.1f, 0.1f, textPaint)
+////            rotate(180f)
+//            restore()
+//        }
+//    }
+
+    private companion object {
+        const val LOW_SPEED_PERCENT = 33
+        const val MEDIUM_SPEED_PERCENT = 63
     }
 }
