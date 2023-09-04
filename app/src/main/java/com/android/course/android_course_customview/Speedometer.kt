@@ -53,7 +53,7 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
     }
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = 1f
+        textSize = 0.1f
         color = ContextCompat.getColor(context, R.color.orange)
         style = Paint.Style.FILL
     }
@@ -113,7 +113,6 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
 
     override fun onDraw(canvas: Canvas?) {
         drawBackground(canvas)
-//        drawSpeed(canvas)
         drawScale(canvas)
         drawArrow(canvas)
     }
@@ -159,6 +158,7 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
                 val x2 = x1 * scaleLength * 0.9f
                 val y2 = y1 * scaleLength * 0.9f
                 canvas?.drawLine(x1, y1, x2, y2, bigScalePaint)
+                drawSpeed(canvas, x2, y2, i.toString())
             } else {
                 scalePaint.chooseColorScale(i)
                 val x2 = x1 * scaleLength
@@ -201,19 +201,12 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
 //        }
 //    }
 
-//    private fun drawSpeed(canvas: Canvas?) {
-//        canvas?.apply {
-//            save()
-////            translate(width.toFloat(), height.toFloat())
-//            scale(width.toFloat(), height.toFloat())
-////            rotate(180f)
-////            drawRect(-0.3f, -0.3f, 0.3f, 0f, speedPaint)
-//            drawText("11", 200f, 100f, textPaint)
-//            drawText("11", 0.1f, 0.1f, textPaint)
-////            rotate(180f)
-//            restore()
-//        }
-//    }
+    private fun drawSpeed(canvas: Canvas?, x: Float, y: Float, text: String) {
+        canvas?.apply {
+            textPaint.chooseColorScale(text.toInt())
+            drawText(text, x, y, textPaint)
+        }
+    }
 
     private companion object {
         const val LOW_SPEED_PERCENT = 33
