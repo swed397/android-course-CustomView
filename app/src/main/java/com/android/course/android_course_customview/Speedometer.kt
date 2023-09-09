@@ -53,7 +53,7 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
     }
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = 0.1f
+        textSize = 1f
         color = ContextCompat.getColor(context, R.color.orange)
         style = Paint.Style.FILL
     }
@@ -203,8 +203,11 @@ class Speedometer(context: Context, attributeSet: AttributeSet?) : View(context,
 
     private fun drawSpeed(canvas: Canvas?, x: Float, y: Float, text: String) {
         canvas?.apply {
+            canvas.save()
+            translate(100f, -100f)
             textPaint.chooseColorScale(text.toInt())
-            drawText(text, x, y, textPaint)
+            drawText(text, x * 100, y * 100, textPaint)
+            restore()
         }
     }
 
